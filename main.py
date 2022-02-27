@@ -287,7 +287,7 @@ if __name__ == "__main__":
 
         print('[%d][%d] Loss_D: %f Loss_G: %f Loss_D_real: %f Loss_D_fake %f Loss_G_Fixed %f'
               % (i, gen_iterations,
-                 errD.data[0], errG.data[0], errD_real.data[0], errD_fake.data[0], fixed_input_loss.data[0]))
+                 errD.data[0], errG.data[0], errD_real.data[0], errD_fake.data[0], fixed_input_loss.data))
         if gen_iterations % 50 == 0:
             real_cpu = real_images_batch[0].mul(0.5).add(0.5)
             vutils.save_image(
