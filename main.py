@@ -324,9 +324,12 @@ if __name__ == "__main__":
                 vis_fake = netG(vis_noise)
             fake.data = fake.data.mul(0.5).add(0.5)
             from moviepy.editor import ImageSequenceClip
-            video_clips = ImageSequenceClip(fake.data.cpu().numpy(), fps=10.)
+            video_clips = ImageSequenceClip(
+                list(fake.data.cpu().numpy().transpose([0, 2, 3, 1])*256), fps=10.)
             video_clips.write_videofile(
                 "{0}/transition_{1}.mp4".format(opt.experiment, gen_iterations), remove_temp=True)
+
+
 
         if i % 1000 == 0:
             # do checkpointing
