@@ -202,6 +202,7 @@ if __name__ == "__main__":
         optimizerG = optim.RMSprop(netG.parameters(), lr=opt.lrG)
 
     fixed_input_criterion = nn.MSELoss().cuda()
+    siamese_criterion = nn.MSELoss().cuda()
 
     gen_iterations = 0
     i = 0
@@ -243,7 +244,7 @@ if __name__ == "__main__":
 
             input.resize_as_(real_patches).copy_(real_patches)
             inputv = Variable(input)
-            errD_real = netD(inputv)
+            errD_real, embedding = netD(inputv)
             errD_real.backward(one)
 
             # train with fake
@@ -254,7 +255,7 @@ if __name__ == "__main__":
             fake_patches = select_images_random_patches(
                 fake.data, opt.patchSize)
             inputv = Variable(fake_patches)
-            errD_fake = netD(inputv)
+            errD_fake, embedding = netD(inputv)
             errD_fake.backward(mone)
             errD = errD_real - errD_fake
             optimizerD.step()
@@ -272,17 +273,30 @@ if __name__ == "__main__":
         fake = netG(noisev)
         fake_patches = select_images_random_patches(
             fake, opt.patchSize)
-        errG = netD(fake_patches)
+        errG, embedding = netD(fake_patches)
         errG.backward(one)
 
         ############################
         # (3) Make the generator predict the images
         ###########################
-        fake = netG(fixed_noisev)
-        fixed_input_loss = fixed_input_criterion(fake, real_images_batch)
+        fixed_fake = netG(fixed_noisev)
+        fixed_input_loss = fixed_input_criterion(fixed_fake, real_images_batch)
         fixed_input_loss.backward()
-        optimizerG.step()
         gen_iterations += 1
+
+        ############################
+        # (4) Smooth the discriminator embeddings of the generator outputs
+        ###########################
+        noise.resize_(2, nz, 1, 1).normal_(0, 1)
+        noisev = Variable(noise)
+        fake = netG(noisev)
+        fake_patches = select_images_random_patches(
+            fake, opt.patchSize)
+        embedding = netD(fake_patches)
+        siamese_loss = siamese_criterion(torch.linalg.norm(
+            embedding[1] - embedding[0]), torch.linalg.norm(noise[1] - noise[0]))
+        siamese_loss.backward()
+        optimizerG.step()
 
         print('[%d][%d] Loss_D: %f Loss_G: %f Loss_D_real: %f Loss_D_fake %f Loss_G_Fixed %f'
               % (i, gen_iterations,

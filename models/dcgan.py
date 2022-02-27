@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.parallel
 
+
 class DCGAN_D(nn.Module):
     def __init__(self, isize, nz, nc, ndf, ngpu, n_extra_layers=0):
         super(DCGAN_D, self).__init__()
@@ -39,18 +40,22 @@ class DCGAN_D(nn.Module):
 
         # state size. K x 4 x 4
         main.add_module('final:{0}-{1}:conv'.format(cndf, 1),
-                        nn.Conv2d(cndf, 1, 4, 1, 0, bias=False))
+                        nn.Conv2d(cndf, cndf//2, 4, 1, 0, bias=False))
         self.main = main
-
+        self.fc = nn.Linear(cndf//2, 1)
 
     def forward(self, input):
         if isinstance(input.data, torch.cuda.FloatTensor) and self.ngpu > 1:
-            output = nn.parallel.data_parallel(self.main, input, range(self.ngpu))
-        else: 
-            output = self.main(input)
-            
-        output = output.mean(0)
-        return output.view(1)
+            embedding = nn.parallel.data_parallel(
+                self.main, input, range(self.ngpu))
+        else:
+            embedding = self.main(input)
+
+        embedding = embedding.squeeze(-1).squeeze(-1)
+        output = self.fc(embedding)
+
+        return output.mean(1), embedding
+
 
 class DCGAN_G(nn.Module):
     def __init__(self, isize, nz, nc, ngf, ngpu, n_extra_layers=0):
@@ -100,11 +105,14 @@ class DCGAN_G(nn.Module):
 
     def forward(self, input):
         if isinstance(input.data, torch.cuda.FloatTensor) and self.ngpu > 1:
-            output = nn.parallel.data_parallel(self.main, input, range(self.ngpu))
-        else: 
+            output = nn.parallel.data_parallel(
+                self.main, input, range(self.ngpu))
+        else:
             output = self.main(input)
-        return output 
+        return output
 ###############################################################################
+
+
 class DCGAN_D_nobn(nn.Module):
     def __init__(self, isize, nz, nc, ndf, ngpu, n_extra_layers=0):
         super(DCGAN_D_nobn, self).__init__()
@@ -142,15 +150,16 @@ class DCGAN_D_nobn(nn.Module):
                         nn.Conv2d(cndf, 1, 4, 1, 0, bias=False))
         self.main = main
 
-
     def forward(self, input):
         if isinstance(input.data, torch.cuda.FloatTensor) and self.ngpu > 1:
-            output = nn.parallel.data_parallel(self.main, input, range(self.ngpu))
-        else: 
+            output = nn.parallel.data_parallel(
+                self.main, input, range(self.ngpu))
+        else:
             output = self.main(input)
-            
+
         output = output.mean(0)
         return output.view(1)
+
 
 class DCGAN_G_nobn(nn.Module):
     def __init__(self, isize, nz, nc, ngf, ngpu, n_extra_layers=0):
@@ -193,7 +202,8 @@ class DCGAN_G_nobn(nn.Module):
 
     def forward(self, input):
         if isinstance(input.data, torch.cuda.FloatTensor) and self.ngpu > 1:
-            output = nn.parallel.data_parallel(self.main, input,  range(self.ngpu))
-        else: 
+            output = nn.parallel.data_parallel(
+                self.main, input,  range(self.ngpu))
+        else:
             output = self.main(input)
-        return output 
+        return output
