@@ -305,8 +305,9 @@ if __name__ == "__main__":
             real_cpu = real_images_batch[0].mul(0.5).add(0.5)
             vutils.save_image(
                 real_cpu, '{0}/real_samples.png'.format(opt.experiment))
+            noise.resize_(opt.batchSize, nz, 1, 1).normal_(0, 1)
             with torch.no_grad():
-                fake = netG(fixed_noise)
+                fake = netG(noise)
             fake.data = fake.data.mul(0.5).add(0.5)
             vutils.save_image(
                 fake.data, '{0}/fake_samples_{1}.png'.format(opt.experiment, gen_iterations))
