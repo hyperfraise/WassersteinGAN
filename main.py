@@ -221,6 +221,9 @@ if __name__ == "__main__":
     batch_size = real_images_batch.size(0)
 
     fixed_noise.resize_(2, nz, 1, 1).normal_(0, 1)
+    for i in range(nz):
+        fixed_noise[0][i][0][0] = 0.5+0.5*(-1)**i
+        fixed_noise[1][i][0][0] = 0.5+0.5*(-1)**(i+1)
     fixed_noisev = Variable(fixed_noise)
 
     while 1:
