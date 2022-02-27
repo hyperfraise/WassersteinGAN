@@ -293,7 +293,7 @@ if __name__ == "__main__":
         fake_patches = select_images_random_patches(
             fake, opt.patchSize)
         embedding = netD(fake_patches)
-        siamese_loss = 0.01 * siamese_criterion(torch.linalg.norm(
+        siamese_loss = siamese_criterion(torch.linalg.norm(
             embedding[1] - embedding[0], ord=2), torch.linalg.norm(noise[1] - noise[0], ord=2))
         siamese_loss.backward()
         optimizerG.step()
