@@ -68,6 +68,12 @@ if __name__ == "__main__":
     parser.add_argument('--clamp_upper', type=float, default=0.01)
     parser.add_argument('--Diters', type=int, default=5,
                         help='number of D iters per each G iter')
+    parser.add_argument('--start-iter', type=int, default=0,
+                        help='number of D iters per each G iter')
+
+    parser.add_argument('--start-gen-iterations', type=int, default=0,
+                        help='number of D iters per each G iter')
+
     parser.add_argument('--noBN', action='store_true',
                         help='use batchnorm or not (only for DCGAN)')
     parser.add_argument('--mlp_G', action='store_true', help='use MLP for G')
@@ -204,8 +210,8 @@ if __name__ == "__main__":
     fixed_input_criterion = nn.MSELoss().cuda()
     siamese_criterion = nn.MSELoss().cuda()
 
-    gen_iterations = 0
-    i = 0
+    gen_iterations = opt.start_gen_iterations
+    i = opt.start_iter
 
     data_iter = iter(dataloader)
     real_images_batch, _ = data_iter.next()
@@ -311,6 +317,14 @@ if __name__ == "__main__":
             fake.data = fake.data.mul(0.5).add(0.5)
             vutils.save_image(
                 fake.data, '{0}/fake_samples_{1}.png'.format(opt.experiment, gen_iterations))
+            step = 1/opt.batchSize
+            vis_noise = torch.stack(
+                [fixed_noise[0]*(1-t) + fixed_noise[1]*t for t in np.arange(0, 1+step, step)])
+            with torch.no_grad():
+                vis_fake = netG(vis_noise)
+            fake.data = fake.data.mul(0.5).add(0.5)
+            # vutils.save_image(
+            #     fake.data, '{0}/fake_samples_{1}.png'.format(opt.experiment, gen_iterations))
 
         if i % 1000 == 0:
             # do checkpointing
