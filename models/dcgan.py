@@ -54,7 +54,7 @@ class DCGAN_D(nn.Module):
         embedding = embedding.squeeze(-1).squeeze(-1)
         output = self.fc(embedding)
 
-        return output.mean(1), embedding
+        return output.mean(0), embedding
 
 
 class DCGAN_G(nn.Module):
