@@ -225,7 +225,7 @@ if __name__ == "__main__":
             p.requires_grad = True  # they are set to False below in netG update
 
         # train the discriminator Diters times
-        if gen_iterations < 25 or gen_iterations % 500 == 0:
+        if gen_iterations < 25 or gen_iterations % 100 == 0:
             Diters = 25
         else:
             Diters = opt.Diters
