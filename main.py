@@ -274,7 +274,6 @@ if __name__ == "__main__":
             fake, opt.patchSize)
         errG = netD(fake_patches)
         errG.backward(one)
-        gen_iterations += 1
 
         ############################
         # (3) Make the generator predict the images
