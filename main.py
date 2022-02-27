@@ -66,7 +66,7 @@ if __name__ == "__main__":
                         help="path to netD (to continue training)")
     parser.add_argument('--clamp_lower', type=float, default=-0.01)
     parser.add_argument('--clamp_upper', type=float, default=0.01)
-    parser.add_argument('--Diters', type=int, default=5,
+    parser.add_argument('--Diters', type=int, default=3,
                         help='number of D iters per each G iter')
     parser.add_argument('--start-iter', type=int, default=0,
                         help='number of D iters per each G iter')
@@ -284,19 +284,24 @@ if __name__ == "__main__":
             fake, opt.patchSize)
         errG, embedding = netD(fake_patches)
         errG.backward(one)
+        optimizerG.step()
 
         ############################
         # (3) Make the generator predict the images
         ###########################
-        fixed_fake = netG(fixed_noisev)
-        fixed_input_loss = 100 * \
-            fixed_input_criterion(fixed_fake, real_images_batch)
-        fixed_input_loss.backward()
-        gen_iterations += 1
+        for i in range(5):
+            netG.zero_grad()
+            fixed_fake = netG(fixed_noisev)
+            fixed_input_loss = 20 * \
+                fixed_input_criterion(fixed_fake, real_images_batch)
+            fixed_input_loss.backward()
+            gen_iterations += 1
+            optimizerG.step()
 
         ############################
         # (4) Smooth the discriminator embeddings of the generator outputs
         ###########################
+        netG.zero_grad()
         noise.resize_(2, nz, 1, 1).normal_(0, 1)
         noisev = Variable(noise)
         embedding_fake = netG(noisev)
