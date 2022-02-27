@@ -286,7 +286,8 @@ if __name__ == "__main__":
         # (3) Make the generator predict the images
         ###########################
         fixed_fake = netG(fixed_noisev)
-        fixed_input_loss = fixed_input_criterion(fixed_fake, real_images_batch)
+        fixed_input_loss = 5 * \
+            fixed_input_criterion(fixed_fake, real_images_batch)
         fixed_input_loss.backward()
         gen_iterations += 1
 
@@ -328,8 +329,6 @@ if __name__ == "__main__":
                 list(fake.data.cpu().numpy().transpose([0, 2, 3, 1])*256), fps=10.)
             video_clips.write_videofile(
                 "{0}/transition_{1}.mp4".format(opt.experiment, gen_iterations), remove_temp=True)
-
-
 
         if i % 1000 == 0:
             # do checkpointing
