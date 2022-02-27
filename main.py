@@ -280,7 +280,7 @@ if __name__ == "__main__":
         # (3) Make the generator predict the images
         ###########################
         fake = netG(fixed_noisev)
-        fixed_input_loss = fixed_input_criterion(fake - real_images_batch)
+        fixed_input_loss = fixed_input_criterion(fake, real_images_batch)
         fixed_input_loss.backward()
         optimizerG.step()
         gen_iterations += 1
