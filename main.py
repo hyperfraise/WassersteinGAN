@@ -289,10 +289,10 @@ if __name__ == "__main__":
         ###########################
         noise.resize_(2, nz, 1, 1).normal_(0, 1)
         noisev = Variable(noise)
-        fake = netG(noisev)
-        fake_patches = select_images_random_patches(
-            fake, opt.patchSize)
-        _, embedding = netD(fake_patches)
+        embedding_fake = netG(noisev)
+        embedding_fake_patches = select_images_random_patches(
+            embedding_fake, opt.patchSize)
+        _, embedding = netD(embedding_fake_patches)
         siamese_loss = 0.005 * siamese_criterion(torch.linalg.norm(
             embedding[1] - embedding[0], ord=2), torch.linalg.norm((noise[1] - noise[0]).squeeze(-1).squeeze(-1), ord=2))
         siamese_loss.backward()
