@@ -285,6 +285,7 @@ if __name__ == "__main__":
         errG, embedding = netD(fake_patches)
         errG.backward(one)
         optimizerG.step()
+        gen_iterations += 1
 
         ############################
         # (3) Make the generator predict the images
@@ -295,7 +296,6 @@ if __name__ == "__main__":
             fixed_input_loss = 20 * \
                 fixed_input_criterion(fixed_fake, real_images_batch)
             fixed_input_loss.backward()
-            gen_iterations += 1
             optimizerG.step()
 
         ############################
@@ -316,7 +316,7 @@ if __name__ == "__main__":
         print('[%d][%d] Loss_D: %f Loss_G: %f Loss_D_real: %f Loss_D_fake %f Loss_G_Fixed %f Loss_G_embdedding %f'
               % (i, gen_iterations,
                  errD.data[0], errG.data[0], errD_real.data[0], errD_fake.data[0], fixed_input_loss.data, siamese_loss.data))
-        if gen_iterations % 50 == 0:
+        if gen_iterations % 100 == 0:
             real_cpu = real_images_batch[0].mul(0.5).add(0.5)
             vutils.save_image(
                 real_cpu, '{0}/real_samples.png'.format(opt.experiment))
