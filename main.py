@@ -481,8 +481,10 @@ if __name__ == "__main__":
             fake.data = fake.data.mul(0.5).add(0.5)
             from moviepy.editor import ImageSequenceClip
 
+            video_fake = fake.mul(255).add_(0.5).clamp_(
+                0, 255).to('cpu', torch.uint8).numpy()
             video_clips = ImageSequenceClip(
-                list(fake.data.cpu().numpy().transpose([0, 2, 3, 1]) * 256),
+                list(video_fake.transpose([0, 2, 3, 1])),
                 fps=10.0,
             )
             video_clips.write_videofile(
@@ -491,6 +493,8 @@ if __name__ == "__main__":
                 ),
                 remove_temp=True,
             )
+            fixed_fake.data = fixed_fake.data.mul(0.5).add(0.5)
+
             vutils.save_image(
                 fixed_fake.data,
                 "{0}/fixed_images{1}.png".format(
