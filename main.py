@@ -99,7 +99,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--Diters",
         type=int,
-        default=3,
+        default=5,
         help="number of D iters per each G iter",
     )
     parser.add_argument(
@@ -345,7 +345,7 @@ if __name__ == "__main__":
 
         # train the discriminator Diters times
         if gen_iterations < 25 or gen_iterations % 100 == 0:
-            Diters = 25
+            Diters = 50
         else:
             Diters = opt.Diters
         j = 0
