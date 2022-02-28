@@ -298,10 +298,14 @@ if __name__ == "__main__":
         optimizerG_fixed = optim.Adam(
             netG.parameters(), lr=0.0005, betas=(opt.beta1, 0.999)
         )
+        optimizerG_smoothing = optim.Adam(
+            netG.parameters(), lr=0.0005, betas=(opt.beta1, 0.999)
+        )
     else:
         optimizerD = optim.RMSprop(netD.parameters(), lr=opt.lrD)
         optimizerG = optim.RMSprop(netG.parameters(), lr=opt.lrG)
         optimizerG_fixed = optim.RMSprop(netG.parameters(), lr=0.0005)
+        optimizerG_smoothing = optim.RMSprop(netG.parameters(), lr=0.0005)
 
     fixed_input_criterion = nn.MSELoss().cuda()
     siamese_criterion = nn.MSELoss().cuda()
@@ -422,13 +426,13 @@ if __name__ == "__main__":
         )
         _, embedding = netD(embedding_fake_patches)
         siamese_loss = siamese_criterion(
-            torch.linalg.norm(
+            np.sqrt(1/nz)*torch.linalg.norm(
                 embedding[: opt.batchSize // 2]
                 - embedding[opt.batchSize // 2:],
                 ord=2,
                 dim=1,
             ),
-            torch.linalg.norm(
+            np.sqrt(1/nz)*torch.linalg.norm(
                 (noise[: opt.batchSize // 2] - noise[opt.batchSize // 2:])
                 .squeeze(-1)
                 .squeeze(-1),
@@ -436,8 +440,8 @@ if __name__ == "__main__":
                 dim=1,
             ),
         )
-        (0.005 * siamese_loss).backward()
-        optimizerG.step()
+        siamese_loss.backward()
+        optimizerG_smoothing.step()
 
         print(
             "[%d][%d] Loss_D: %f Loss_G: %f Loss_D_real: %f "
@@ -478,6 +482,7 @@ if __name__ == "__main__":
             )
             with torch.no_grad():
                 vis_fake = netG(vis_noise)
+            vis_fake.data = vis_fake.data.mul(0.5).add(0.5)
 
             from moviepy.editor import ImageSequenceClip
 
