@@ -220,7 +220,7 @@ if __name__ == "__main__":
         real_images_batch = real_images_batch.cuda()
     batch_size = real_images_batch.size(0)
 
-    fixed_noise.resize_(2, nz, 1, 1).normal_(0, 1)
+    fixed_noise.resize_(2, nz, 1, 1)
     for i in range(nz):
         fixed_noise[0][i][0][0] = 0.5+0.5*(-1)**i
         fixed_noise[1][i][0][0] = 0.5+0.5*(-1)**(i+1)
@@ -293,24 +293,24 @@ if __name__ == "__main__":
         for i in range(5):
             netG.zero_grad()
             fixed_fake = netG(fixed_noisev)
-            fixed_input_loss = 20 * \
-                fixed_input_criterion(fixed_fake, real_images_batch)
-            fixed_input_loss.backward()
+            fixed_input_loss = fixed_input_criterion(
+                fixed_fake, real_images_batch)
+            (20 * fixed_input_loss).backward()
             optimizerG.step()
 
         ############################
         # (4) Smooth the discriminator embeddings of the generator outputs
         ###########################
         netG.zero_grad()
-        noise.resize_(2, nz, 1, 1).normal_(0, 1)
+        noise.resize_(opt.batchSize, nz, 1, 1).normal_(0, 1)
         noisev = Variable(noise)
         embedding_fake = netG(noisev)
         embedding_fake_patches = select_images_random_patches(
             embedding_fake, opt.patchSize)
         _, embedding = netD(embedding_fake_patches)
-        siamese_loss = 0.005 * siamese_criterion(torch.linalg.norm(
-            embedding[1] - embedding[0], ord=2), torch.linalg.norm((noise[1] - noise[0]).squeeze(-1).squeeze(-1), ord=2))
-        siamese_loss.backward()
+        siamese_loss = siamese_criterion(torch.linalg.norm(
+            embedding[:opt.batchSize//2] - embedding[opt.batchSize//2:], ord=2), torch.linalg.norm((noise[:opt.batchSize//2] - noise[opt.batchSize//2:]).squeeze(-1).squeeze(-1), ord=2))
+        (0.005*siamese_loss).backward()
         optimizerG.step()
 
         print('[%d][%d] Loss_D: %f Loss_G: %f Loss_D_real: %f Loss_D_fake %f Loss_G_Fixed %f Loss_G_embdedding %f'
@@ -337,6 +337,8 @@ if __name__ == "__main__":
                 list(fake.data.cpu().numpy().transpose([0, 2, 3, 1])*256), fps=10.)
             video_clips.write_videofile(
                 "{0}/transition_{1}.mp4".format(opt.experiment, gen_iterations), remove_temp=True)
+            vutils.save_image(
+                fixed_fake.data, '{0}/fixed_images{1}.png'.format(opt.experiment, gen_iterations))
 
         if i % 1000 == 0:
             # do checkpointing
