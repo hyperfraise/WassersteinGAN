@@ -507,14 +507,14 @@ if __name__ == "__main__":
                 ),
                 remove_temp=True,
             )
-            fixed_fake.data = fixed_fake.data.mul(0.5).add(0.5)
-
-            vutils.save_image(
-                fixed_fake.data,
-                "{0}/fixed_images{1}.png".format(
-                    opt.experiment, gen_iterations
-                ),
-            )
+            # fixed_fake.data = fixed_fake.data.mul(0.5).add(0.5)
+            #
+            # vutils.save_image(
+            #     fixed_fake.data,
+            #     "{0}/fixed_images{1}.png".format(
+            #         opt.experiment, gen_iterations
+            #     ),
+            # )
 
         if i % 1000 == 0:
             # do checkpointing
