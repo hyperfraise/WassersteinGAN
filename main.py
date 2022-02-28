@@ -27,8 +27,8 @@ def select_images_random_patches(images, patchSize, augment=False):
         if augment:
             offsets = int(image.size(-2)*0.2), int(image.size(-1)*0.2)
 
-            deformed_image = elasticdeform.deform_random_grid(
-                image, sigma=25, points=3, axis=(0, 1))
+            deformed_image = torch.from_numpy(elasticdeform.deform_random_grid(
+                image.cpu().numpy(), sigma=25, points=3, axis=(1, 2))).cuda()
         else:
             offsets = 0, 0
             deformed_image = image
@@ -405,7 +405,8 @@ if __name__ == "__main__":
         noise.resize_(opt.batchSize, nz, 1, 1).normal_(0, 1)
         noisev = Variable(noise)
         fake = netG(noisev)
-        fake_patches = select_images_random_patches(fake, opt.patchSize, augment=False)
+        fake_patches = select_images_random_patches(
+            fake, opt.patchSize, augment=False)
         errG, embedding = netD(fake_patches)
         errG.backward(one)
         optimizerG.step()
