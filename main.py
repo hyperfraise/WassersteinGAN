@@ -21,7 +21,7 @@ from tqdm import tqdm
 import elasticdeform
 
 
-def select_images_random_patches(images, patchSize, augment=True):
+def select_images_random_patches(images, patchSize, augment=False):
     patches = []
     for image in images:
         if augment:
@@ -372,7 +372,7 @@ if __name__ == "__main__":
             i += 1
             netD.zero_grad()
             real_patches = select_images_random_patches(
-                real_images_batch, opt.patchSize
+                real_images_batch, opt.patchSize, augment=True
             )
 
             input.resize_as_(real_patches).copy_(real_patches)
@@ -386,7 +386,7 @@ if __name__ == "__main__":
             with torch.no_grad():
                 fake = Variable(netG(noisev))
             fake_patches = select_images_random_patches(
-                fake.data, opt.patchSize
+                fake.data, opt.patchSize, augment=False
             )
             inputv = Variable(fake_patches)
             errD_fake, embedding = netD(inputv)
@@ -405,7 +405,7 @@ if __name__ == "__main__":
         noise.resize_(opt.batchSize, nz, 1, 1).normal_(0, 1)
         noisev = Variable(noise)
         fake = netG(noisev)
-        fake_patches = select_images_random_patches(fake, opt.patchSize)
+        fake_patches = select_images_random_patches(fake, opt.patchSize, augment=False)
         errG, embedding = netD(fake_patches)
         errG.backward(one)
         optimizerG.step()
