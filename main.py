@@ -294,9 +294,13 @@ if __name__ == "__main__":
         optimizerG = optim.Adam(
             netG.parameters(), lr=opt.lrG, betas=(opt.beta1, 0.999)
         )
+        optimizerG_fixed = optim.Adam(
+            netG.parameters(), lr=0.0001, betas=(opt.beta1, 0.999)
+        )
     else:
         optimizerD = optim.RMSprop(netD.parameters(), lr=opt.lrD)
         optimizerG = optim.RMSprop(netG.parameters(), lr=opt.lrG)
+        optimizerG_fixed = optim.RMSprop(netG.parameters(), lr=0.0001)
 
     fixed_input_criterion = nn.MSELoss().cuda()
     siamese_criterion = nn.MSELoss().cuda()
@@ -325,8 +329,8 @@ if __name__ == "__main__":
         fixed_input_loss = fixed_input_criterion(
             fixed_fake, real_images_batch
         )
-        (100 * fixed_input_loss).backward()
-        optimizerG.step()
+        fixed_input_loss.backward()
+        optimizerG_fixed.step()
 
     while 1:
         ############################
@@ -401,8 +405,8 @@ if __name__ == "__main__":
             fixed_input_loss = fixed_input_criterion(
                 fixed_fake, real_images_batch
             )
-            (20 * fixed_input_loss).backward()
-            optimizerG.step()
+            fixed_input_loss.backward()
+            optimizerG_fixed.step()
 
         ############################
         # (4) Smooth the discriminator embeddings of the generator outputs
