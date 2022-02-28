@@ -18,15 +18,19 @@ from torch.autograd import Variable
 import models.dcgan as dcgan
 import models.mlp as mlp
 from tqdm import tqdm
+import elasticdeform
 
 
 def select_images_random_patches(images, patchSize):
     patches = []
     for image in images:
-        x, y = np.random.choice(image.size(-2) - patchSize), np.random.choice(
-            image.size(-2) - patchSize
+        offsets = int(image.size(-2)*0.2), int(image.size(-1)*0.2)
+        x, y = np.random.choice(range(offsets[-2], image.size(-2) - patchSize - offsets[-2])), np.random.choice(
+            range(offsets[-1], image.size(-1) - patchSize - offsets[-1])
         )
-        patch = image[:, x: x + patchSize, y: y + patchSize]
+        deformed_image = elasticdeform.deform_random_grid(
+            image, sigma=25, points=3, axis=(0, 1))
+        patch = deformed_image[:, x: x + patchSize, y: y + patchSize]
         patches.append(patch)
     return torch.stack(patches)
 
@@ -445,7 +449,7 @@ if __name__ == "__main__":
 
         print(
             "[%d][%d] Loss_D: %f Loss_G: %f Loss_D_real: %f "
-            "Loss_D_fake %f Loss_G_Fixed %f Corresponding Pixel delta %f"# Loss_G_embdedding %f"
+            "Loss_D_fake %f Loss_G_Fixed %f Corresponding Pixel delta %f"  # Loss_G_embdedding %f"
             % (
                 i,
                 gen_iterations,
