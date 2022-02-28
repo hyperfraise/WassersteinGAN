@@ -17,6 +17,7 @@ from torch.autograd import Variable
 
 import models.dcgan as dcgan
 import models.mlp as mlp
+from tqdm import tqdm
 
 
 def select_images_random_patches(images, patchSize):
@@ -321,9 +322,10 @@ if __name__ == "__main__":
         fixed_noise[1][i][0][0] = 0.5 + 0.5 * (-1) ** (i + 1)
     fixed_noisev = Variable(fixed_noise)
     ############################
-    # (3) Make the generator predict the images
+    # Make the generator predict the images
     ###########################
-    for i in range(10000):
+    print("Calibrating on starting images")
+    for i in tqdm(range(10000)):
         netG.zero_grad()
         fixed_fake = netG(fixed_noisev)
         fixed_input_loss = fixed_input_criterion(
