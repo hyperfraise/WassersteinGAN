@@ -412,17 +412,17 @@ if __name__ == "__main__":
         optimizerG.step()
         gen_iterations += 1
 
-        ############################
-        # (3) Make the generator predict the images
-        ###########################
-        for i in range(5):
-            netG.zero_grad()
-            fixed_fake = netG(fixed_noisev)
-            fixed_input_loss = fixed_input_criterion(
-                fixed_fake, real_images_batch
-            )
-            fixed_input_loss.backward()
-            optimizerG_fixed.step()
+        # ############################
+        # # (3) Make the generator predict the images
+        # ###########################
+        # for i in range(5):
+        #     netG.zero_grad()
+        #     fixed_fake = netG(fixed_noisev)
+        #     fixed_input_loss = fixed_input_criterion(
+        #         fixed_fake, real_images_batch
+        #     )
+        #     fixed_input_loss.backward()
+        #     optimizerG_fixed.step()
 
         # ############################
         # # (4) Smooth the discriminator embeddings of the generator outputs
@@ -455,7 +455,7 @@ if __name__ == "__main__":
 
         print(
             "[%d][%d] Loss_D: %f Loss_G: %f Loss_D_real: %f "
-            "Loss_D_fake %f Loss_G_Fixed %f Corresponding Pixel delta %f"  # Loss_G_embdedding %f"
+            "Loss_D_fake "#"%f Loss_G_Fixed %f Corresponding Pixel delta %f"  # Loss_G_embdedding %f"
             % (
                 i,
                 gen_iterations,
@@ -463,8 +463,8 @@ if __name__ == "__main__":
                 errG.data[0],
                 errD_real.data[0],
                 errD_fake.data[0],
-                fixed_input_loss.data,
-                256*np.sqrt(fixed_input_loss.data.cpu().numpy()),
+                # fixed_input_loss.data,
+                # 256*np.sqrt(fixed_input_loss.data.cpu().numpy()),
             )
         )
         if gen_iterations % 100 == 0:
