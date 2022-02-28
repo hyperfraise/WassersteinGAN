@@ -323,13 +323,13 @@ if __name__ == "__main__":
     ############################
     # (3) Make the generator predict the images
     ###########################
-    for i in range(1000):
+    for i in range(10000):
         netG.zero_grad()
         fixed_fake = netG(fixed_noisev)
         fixed_input_loss = fixed_input_criterion(
             fixed_fake, real_images_batch
         )
-        (1000*fixed_input_loss).backward()
+        (10*fixed_input_loss).backward()
         optimizerG_fixed.step()
 
     while 1:
