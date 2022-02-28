@@ -295,12 +295,12 @@ if __name__ == "__main__":
             netG.parameters(), lr=opt.lrG, betas=(opt.beta1, 0.999)
         )
         optimizerG_fixed = optim.Adam(
-            netG.parameters(), lr=0.0001, betas=(opt.beta1, 0.999)
+            netG.parameters(), lr=0.001, betas=(opt.beta1, 0.999)
         )
     else:
         optimizerD = optim.RMSprop(netD.parameters(), lr=opt.lrD)
         optimizerG = optim.RMSprop(netG.parameters(), lr=opt.lrG)
-        optimizerG_fixed = optim.RMSprop(netG.parameters(), lr=0.0001)
+        optimizerG_fixed = optim.RMSprop(netG.parameters(), lr=0.001)
 
     fixed_input_criterion = nn.MSELoss().cuda()
     siamese_criterion = nn.MSELoss().cuda()
