@@ -318,7 +318,7 @@ if __name__ == "__main__":
     ############################
     # (3) Make the generator predict the images
     ###########################
-    for i in range(100):
+    for i in range(1000):
         netG.zero_grad()
         fixed_fake = netG(fixed_noisev)
         fixed_input_loss = fixed_input_criterion(
