@@ -329,7 +329,7 @@ if __name__ == "__main__":
         fixed_input_loss = fixed_input_criterion(
             fixed_fake, real_images_batch
         )
-        fixed_input_loss.backward()
+        (10*fixed_input_loss.backward())
         optimizerG_fixed.step()
 
     while 1:
