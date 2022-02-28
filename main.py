@@ -325,7 +325,7 @@ if __name__ == "__main__":
     # Make the generator predict the images
     ###########################
     print("Calibrating on starting images")
-    for i in tqdm(range(5000)):
+    for i in tqdm(range(2000)):
         netG.zero_grad()
         fixed_fake = netG(fixed_noisev)
         fixed_input_loss = fixed_input_criterion(
