@@ -21,15 +21,20 @@ from tqdm import tqdm
 import elasticdeform
 
 
-def select_images_random_patches(images, patchSize):
+def select_images_random_patches(images, patchSize, augment=True):
     patches = []
     for image in images:
-        offsets = int(image.size(-2)*0.2), int(image.size(-1)*0.2)
+        if augment:
+            offsets = int(image.size(-2)*0.2), int(image.size(-1)*0.2)
+
+            deformed_image = elasticdeform.deform_random_grid(
+                image, sigma=25, points=3, axis=(0, 1))
+        else:
+            offsets = 0, 0
+            deformed_image = image
         x, y = np.random.choice(range(offsets[-2], image.size(-2) - patchSize - offsets[-2])), np.random.choice(
             range(offsets[-1], image.size(-1) - patchSize - offsets[-1])
         )
-        deformed_image = elasticdeform.deform_random_grid(
-            image, sigma=25, points=3, axis=(0, 1))
         patch = deformed_image[:, x: x + patchSize, y: y + patchSize]
         patches.append(patch)
     return torch.stack(patches)
