@@ -325,7 +325,7 @@ if __name__ == "__main__":
     # Make the generator predict the images
     ###########################
     print("Calibrating on starting images")
-    for i in tqdm(range(10000)):
+    for i in tqdm(range(5000)):
         netG.zero_grad()
         fixed_fake = netG(fixed_noisev)
         fixed_input_loss = fixed_input_criterion(
@@ -440,7 +440,8 @@ if __name__ == "__main__":
         optimizerG.step()
 
         print(
-            "[%d][%d] Loss_D: %f Loss_G: %f Loss_D_real: %f Loss_D_fake %f Loss_G_Fixed %f Loss_G_embdedding %f"
+            "[%d][%d] Loss_D: %f Loss_G: %f Loss_D_real: %f "
+            "Loss_D_fake %f Loss_G_Fixed %f Corresponding Pixel delta %f Loss_G_embdedding %f"
             % (
                 i,
                 gen_iterations,
@@ -449,6 +450,7 @@ if __name__ == "__main__":
                 errD_real.data[0],
                 errD_fake.data[0],
                 fixed_input_loss.data,
+                256*np.sqrt(fixed_input_loss.data.cpu().numpy()),
                 siamese_loss.data,
             )
         )
