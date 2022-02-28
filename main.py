@@ -455,7 +455,7 @@ if __name__ == "__main__":
 
         print(
             "[%d][%d] Loss_D: %f Loss_G: %f Loss_D_real: %f "
-            "Loss_D_fake "#"%f Loss_G_Fixed %f Corresponding Pixel delta %f"  # Loss_G_embdedding %f"
+            "Loss_D_fake %f "  # "Loss_G_Fixed %f Corresponding Pixel delta %f"  # Loss_G_embdedding %f"
             % (
                 i,
                 gen_iterations,
