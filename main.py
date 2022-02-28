@@ -414,38 +414,38 @@ if __name__ == "__main__":
             fixed_input_loss.backward()
             optimizerG_fixed.step()
 
-        ############################
-        # (4) Smooth the discriminator embeddings of the generator outputs
-        ###########################
-        netG.zero_grad()
-        noise.resize_(opt.batchSize, nz, 1, 1).normal_(0, 1)
-        noisev = Variable(noise)
-        embedding_fake = netG(noisev)
-        embedding_fake_patches = select_images_random_patches(
-            embedding_fake, opt.patchSize
-        )
-        _, embedding = netD(embedding_fake_patches)
-        siamese_loss = siamese_criterion(
-            np.sqrt(1/nz)*torch.linalg.norm(
-                embedding[: opt.batchSize // 2]
-                - embedding[opt.batchSize // 2:],
-                ord=2,
-                dim=1,
-            ),
-            np.sqrt(1/nz)*torch.linalg.norm(
-                (noise[: opt.batchSize // 2] - noise[opt.batchSize // 2:])
-                .squeeze(-1)
-                .squeeze(-1),
-                ord=2,
-                dim=1,
-            ),
-        )
-        siamese_loss.backward()
-        optimizerG_smoothing.step()
+        # ############################
+        # # (4) Smooth the discriminator embeddings of the generator outputs
+        # ###########################
+        # netG.zero_grad()
+        # noise.resize_(opt.batchSize, nz, 1, 1).normal_(0, 1)
+        # noisev = Variable(noise)
+        # embedding_fake = netG(noisev)
+        # embedding_fake_patches = select_images_random_patches(
+        #     embedding_fake, opt.patchSize
+        # )
+        # _, embedding = netD(embedding_fake_patches)
+        # siamese_loss = siamese_criterion(
+        #     np.sqrt(1/nz)*torch.linalg.norm(
+        #         embedding[: opt.batchSize // 2]
+        #         - embedding[opt.batchSize // 2:],
+        #         ord=2,
+        #         dim=1,
+        #     ),
+        #     np.sqrt(1/nz)*torch.linalg.norm(
+        #         (noise[: opt.batchSize // 2] - noise[opt.batchSize // 2:])
+        #         .squeeze(-1)
+        #         .squeeze(-1),
+        #         ord=2,
+        #         dim=1,
+        #     ),
+        # )
+        # siamese_loss.backward()
+        # optimizerG_smoothing.step()
 
         print(
             "[%d][%d] Loss_D: %f Loss_G: %f Loss_D_real: %f "
-            "Loss_D_fake %f Loss_G_Fixed %f Corresponding Pixel delta %f Loss_G_embdedding %f"
+            "Loss_D_fake %f Loss_G_Fixed %f Corresponding Pixel delta %f"# Loss_G_embdedding %f"
             % (
                 i,
                 gen_iterations,
@@ -455,7 +455,6 @@ if __name__ == "__main__":
                 errD_fake.data[0],
                 fixed_input_loss.data,
                 256*np.sqrt(fixed_input_loss.data.cpu().numpy()),
-                siamese_loss.data,
             )
         )
         if gen_iterations % 100 == 0:
