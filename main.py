@@ -162,7 +162,6 @@ if __name__ == "__main__":
             transform=transforms.Compose(
                 [
                     transforms.Scale(opt.imageSize),
-                    transforms.CenterCrop(opt.imageSize),
                     transforms.ToTensor(),
                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                 ]
