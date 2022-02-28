@@ -478,10 +478,10 @@ if __name__ == "__main__":
             )
             with torch.no_grad():
                 vis_fake = netG(vis_noise)
-            fake.data = fake.data.mul(0.5).add(0.5)
+
             from moviepy.editor import ImageSequenceClip
 
-            video_fake = fake.mul(255).add_(0.5).clamp_(
+            video_fake = vis_fake.mul(255).add_(0.5).clamp_(
                 0, 255).to('cpu', torch.uint8).numpy()
             video_clips = ImageSequenceClip(
                 list(video_fake.transpose([0, 2, 3, 1])),
