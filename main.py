@@ -316,6 +316,17 @@ if __name__ == "__main__":
         fixed_noise[0][i][0][0] = 0.5 + 0.5 * (-1) ** i
         fixed_noise[1][i][0][0] = 0.5 + 0.5 * (-1) ** (i + 1)
     fixed_noisev = Variable(fixed_noise)
+    ############################
+    # (3) Make the generator predict the images
+    ###########################
+    for i in range(100):
+        netG.zero_grad()
+        fixed_fake = netG(fixed_noisev)
+        fixed_input_loss = fixed_input_criterion(
+            fixed_fake, real_images_batch
+        )
+        (100 * fixed_input_loss).backward()
+        optimizerG.step()
 
     while 1:
         ############################
